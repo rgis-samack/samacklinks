@@ -597,7 +597,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Ações de Backup */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -607,18 +607,18 @@ export const LandingPage: React.FC = () => {
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl border border-neutral-250 dark:border-dark-border text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
+                className="flex-grow sm:flex-grow-0 justify-center flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-neutral-250 dark:border-dark-border text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
                 title="Importar backup"
               >
-                <Upload className="h-4 w-4 text-primary" />
+                <Upload className="h-3.5 w-3.5 text-primary" />
                 Importar JSON
               </button>
               <button
                 onClick={handleExportBackup}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl border border-neutral-250 dark:border-dark-border text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
+                className="flex-grow sm:flex-grow-0 justify-center flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-neutral-250 dark:border-dark-border text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
                 title="Exportar backup"
               >
-                <Download className="h-4 w-4 text-primary" />
+                <Download className="h-3.5 w-3.5 text-primary" />
                 Exportar JSON
               </button>
             </div>
@@ -640,114 +640,176 @@ export const LandingPage: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto -mx-6 sm:mx-0">
-              <table className="min-w-full divide-y divide-neutral-200 dark:divide-dark-border text-left">
-                <thead>
-                  <tr className="text-[10px] font-bold text-neutral-400 dark:text-dark-text-muted uppercase tracking-wider">
-                    <th className="px-6 py-4">Link Curto</th>
-                    <th className="px-6 py-4">Destino Original</th>
-                    <th className="px-6 py-4 text-center">Cliques</th>
-                    <th className="px-6 py-4">Data de Criação</th>
-                    <th className="px-6 py-4 text-right">Ações</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-100 dark:divide-dark-border text-xs sm:text-sm">
-                  {myLinks.map((link) => {
-                    const shortUrl = getShortenedUrl(link.slug);
-                    return (
-                      <tr 
-                        key={link.id} 
-                        className="hover:bg-neutral-50/55 dark:hover:bg-neutral-800/20 transition-colors"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-1.5">
-                            <span 
-                              onClick={() => window.open(shortUrl, '_blank')}
-                              className="font-bold text-primary hover:underline cursor-pointer text-xs sm:text-sm"
-                            >
-                              samack.link/{link.slug}
-                            </span>
-                            <button
-                              onClick={() => {
-                                navigator.clipboard.writeText(shortUrl);
-                                toast.success('Copiado!', 'Link copiado!');
-                              }}
-                              className="p-1.5 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-800 dark:hover:text-white transition-colors cursor-pointer"
-                              title="Copiar Link"
-                            >
-                              <Copy className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 max-w-[200px] truncate">
-                          <a 
-                            href={link.originalUrl} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-white transition-colors underline"
-                          >
-                            {link.originalUrl}
-                          </a>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <span className="font-extrabold text-neutral-900 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-md text-xs">
-                            {link.clicksCount}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-450 dark:text-neutral-400">
-                          {formatDate(link.createdAt).split(' ')[0]}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-xs">
-                          <div className="inline-flex items-center gap-1">
-                            <div className="relative">
+            <div className="w-full">
+              {/* Visualização em Tabela (Desktop - Telas Médias/Grandes) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-neutral-200 dark:divide-dark-border text-left">
+                  <thead>
+                    <tr className="text-[10px] font-bold text-neutral-400 dark:text-dark-text-muted uppercase tracking-wider">
+                      <th className="px-6 py-4">Link Curto</th>
+                      <th className="px-6 py-4">Destino Original</th>
+                      <th className="px-6 py-4 text-center">Cliques</th>
+                      <th className="px-6 py-4">Data de Criação</th>
+                      <th className="px-6 py-4 text-right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100 dark:divide-dark-border text-xs sm:text-sm">
+                    {myLinks.map((link) => {
+                      const shortUrl = getShortenedUrl(link.slug);
+                      return (
+                        <tr 
+                          key={link.id} 
+                          className="hover:bg-neutral-50/55 dark:hover:bg-neutral-800/20 transition-colors"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-1.5">
+                              <span 
+                                onClick={() => window.open(shortUrl, '_blank')}
+                                className="font-bold text-primary hover:underline cursor-pointer text-xs sm:text-sm"
+                              >
+                                samack.link/{link.slug}
+                              </span>
                               <button
-                                onClick={() => setActiveQrSlug(activeQrSlug === link.slug ? null : link.slug)}
-                                className={`p-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                                  activeQrSlug === link.slug 
-                                    ? 'bg-primary text-white shadow-lg shadow-primary/20' 
-                                    : 'bg-primary/10 hover:bg-primary hover:text-white text-primary border border-primary/10'
-                                }`}
+                                onClick={() => {
+                                  navigator.clipboard.writeText(shortUrl);
+                                  toast.success('Copiado!', 'Link copiado!');
+                                }}
+                                className="p-1.5 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-800 dark:hover:text-white transition-colors cursor-pointer"
+                                title="Copiar Link"
+                              >
+                                <Copy className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 max-w-[200px] truncate">
+                            <a 
+                              href={link.originalUrl} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-white transition-colors underline"
+                            >
+                              {link.originalUrl}
+                            </a>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <span className="font-extrabold text-neutral-900 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-md text-xs">
+                              {link.clicksCount}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-450 dark:text-neutral-400">
+                            {formatDate(link.createdAt).split(' ')[0]}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-xs">
+                            <div className="inline-flex items-center gap-1.5">
+                              <button
+                                onClick={() => setActiveQrSlug(link.slug)}
+                                className="p-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 bg-primary/10 hover:bg-primary hover:text-white text-primary border border-primary/10"
                                 title="QR Code"
                               >
                                 <QrCode className="h-4 w-4" />
                                 <span>QR Code</span>
                               </button>
-                              
-                              {/* Popup Flutuante do QR Code */}
-                              {activeQrSlug === link.slug && (
-                                <>
-                                  <div className="fixed inset-0 z-20" onClick={() => setActiveQrSlug(null)} />
-                                  <div className="absolute right-0 bottom-10 z-30 p-3 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-dark-border rounded-2xl shadow-2xl flex flex-col items-center gap-2">
-                                    <div className="p-2 bg-white rounded-lg border border-neutral-100">
-                                      <img src={getQrCodeUrl(link.slug, 120)} className="h-24 w-24 object-contain" alt="QR Code" />
-                                    </div>
-                                    <button
-                                      onClick={() => {
-                                        downloadQr(link.slug);
-                                        setActiveQrSlug(null);
-                                      }}
-                                      className="w-full py-1 text-[10px] bg-primary text-white rounded-lg font-bold hover:bg-primary/95"
-                                    >
-                                      Baixar PNG
-                                    </button>
-                                  </div>
-                                </>
-                              )}
+                              <button
+                                onClick={() => handleDeleteLink(link.id, link.slug)}
+                                className="p-2 rounded-xl border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                                title="Excluir"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
                             </div>
-                            <button
-                              onClick={() => handleDeleteLink(link.id, link.slug)}
-                              className="p-2 rounded-xl border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
-                              title="Excluir"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Visualização em Lista de Cards (Mobile - Celulares) */}
+              <div className="block md:hidden space-y-4">
+                {myLinks.map((link) => {
+                  const shortUrl = getShortenedUrl(link.slug);
+                  return (
+                    <div 
+                      key={link.id} 
+                      className="p-4 rounded-2xl border border-neutral-200 dark:border-dark-border bg-neutral-50/20 dark:bg-neutral-900/10 hover:border-neutral-300 dark:hover:border-neutral-800 transition-all flex flex-col gap-3"
+                    >
+                      {/* Link Curto e Botão de Copiar */}
+                      <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800/40 pb-2">
+                        <span 
+                          onClick={() => window.open(shortUrl, '_blank')}
+                          className="font-bold text-primary hover:underline cursor-pointer text-sm"
+                        >
+                          samack.link/{link.slug}
+                        </span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(shortUrl);
+                            toast.success('Copiado!', 'Link copiado!');
+                          }}
+                          className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-850 dark:hover:text-white transition-colors cursor-pointer"
+                          title="Copiar Link"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      {/* Destino Original */}
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[9px] font-bold text-neutral-400 dark:text-dark-text-muted uppercase tracking-wider">
+                          Destino original
+                        </span>
+                        <a 
+                          href={link.originalUrl} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="text-xs text-neutral-500 dark:text-neutral-400 truncate hover:text-neutral-800 dark:hover:text-white transition-colors underline"
+                        >
+                          {link.originalUrl}
+                        </a>
+                      </div>
+
+                      {/* Estatísticas Simples (Cliques e Data) */}
+                      <div className="grid grid-cols-2 gap-2 bg-neutral-50/50 dark:bg-neutral-900/40 p-2.5 rounded-xl border border-neutral-100 dark:border-neutral-800/20">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">
+                            Cliques
+                          </span>
+                          <span className="font-extrabold text-xs text-neutral-800 dark:text-white mt-0.5">
+                            {link.clicksCount} cliques
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">
+                            Criado em
+                          </span>
+                          <span className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">
+                            {formatDate(link.createdAt).split(' ')[0]}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Ações (QR Code e Excluir) */}
+                      <div className="flex items-center gap-2 mt-1">
+                        <button
+                          onClick={() => setActiveQrSlug(link.slug)}
+                          className="flex-grow py-2.5 rounded-xl text-xs font-bold bg-primary/10 hover:bg-primary hover:text-white text-primary border border-primary/10 transition-all cursor-pointer flex items-center justify-center gap-2"
+                        >
+                          <QrCode className="h-4 w-4" />
+                          <span>QR Code</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteLink(link.id, link.slug)}
+                          className="p-2.5 rounded-xl border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer flex-shrink-0"
+                          title="Excluir link"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
@@ -767,6 +829,77 @@ export const LandingPage: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* Modal do QR Code (Mais visível, com suporte a celular e leitura direta) */}
+      <AnimatePresence>
+        {activeQrSlug && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            {/* Click outside to close */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 cursor-pointer" 
+              onClick={() => setActiveQrSlug(null)} 
+            />
+            
+            {/* Modal Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-sm p-6 sm:p-8 rounded-3xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-2xl text-center z-10"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setActiveQrSlug(null)}
+                className="absolute top-4 right-4 p-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-500 hover:text-neutral-850 dark:hover:text-white transition-colors cursor-pointer"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+
+              <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">
+                QR Code Escaneável
+              </h3>
+              <p className="text-xs text-neutral-500 dark:text-dark-text-muted mb-6 truncate px-4">
+                samack.link/{activeQrSlug}
+              </p>
+
+              {/* QR Code Wrapper - Bigger Size (240x240 px) */}
+              <div className="p-4 bg-white rounded-2xl border border-neutral-100 dark:border-neutral-800 shadow-inner flex items-center justify-center mx-auto mb-6 w-60 h-60">
+                <img 
+                  src={getQrCodeUrl(activeQrSlug, 220)} 
+                  className="h-52 w-52 object-contain select-none" 
+                  alt="QR Code" 
+                />
+              </div>
+
+              {/* Ações do Modal */}
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    downloadQr(activeQrSlug);
+                    setActiveQrSlug(null);
+                  }}
+                  className="w-full py-3.5 rounded-2xl bg-primary hover:bg-primary/95 text-white font-extrabold text-sm tracking-wider uppercase shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>Baixar QR Code (PNG)</span>
+                </button>
+                <button
+                  onClick={() => setActiveQrSlug(null)}
+                  className="w-full py-3 rounded-2xl border border-neutral-300 dark:border-neutral-700 bg-white hover:bg-neutral-50 dark:bg-transparent dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-bold text-xs transition-colors cursor-pointer"
+                >
+                  Fechar
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
