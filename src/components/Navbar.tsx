@@ -1,5 +1,4 @@
 import React from 'react';
-import { ThemeToggle } from './ThemeToggle';
 import { Link2 } from 'lucide-react';
 
 interface NavbarProps {
@@ -8,7 +7,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-neutral-200 dark:border-dark-border bg-white/80 dark:bg-dark-bg/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 w-full border-b border-dark-border bg-dark-bg/85 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* LOGO E NOME */}
@@ -21,18 +20,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
             <Link2 className="h-5 w-5 text-white" />
           </div>
           <div>
-            <span className="font-extrabold text-xl tracking-tight text-neutral-900 dark:text-white">
+            <span className="font-extrabold text-xl tracking-tight text-white">
               SAMACK
             </span>
             <span className="hidden sm:block text-[10px] text-primary font-semibold tracking-wider uppercase -mt-1">
               Shortener
             </span>
           </div>
-        </div>
-
-        {/* NAVEGAÇÃO / AÇÕES DA DIREITA */}
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
         </div>
 
       </div>
