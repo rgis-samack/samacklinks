@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemeToggle } from './ThemeToggle';
-import { Link2, Settings } from 'lucide-react';
+import { Link2 } from 'lucide-react';
 
 interface NavbarProps {
   onNavigate: (view: string) => void;
