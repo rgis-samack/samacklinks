@@ -384,7 +384,8 @@ class MockDatabaseClient implements IDatabaseClient {
   }
 
   async getAllLinksAdmin(): Promise<Link[]> {
-    return this.getStorage<Link[]>('links', []);
+    const links = this.getStorage<Link[]>('links', []);
+    return links.filter(l => l.deletedAt === null);
   }
 
   async createLink(linkData: Partial<Link>): Promise<Link> {
@@ -813,6 +814,7 @@ class SupabaseDatabaseClient implements IDatabaseClient {
     const { data, error } = await this.supabase
       .from('links')
       .select('*, clicks(id, clicked_at)')
+      .is('deleted_at', null)
       .order('created_at', { ascending: false });
 
     if (error) {
