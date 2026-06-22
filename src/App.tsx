@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider, useToast } from './components/Toast';
 import { Navbar } from './components/Navbar';
 import { LandingPage } from './components/LandingPage';
-import { Dashboard } from './components/Dashboard';
-import { AdminPanel } from './components/AdminPanel';
 import { PublicStats } from './components/PublicStats';
 import { SecurityView } from './components/SecurityView';
 import { db } from './db/DatabaseClient';
@@ -12,13 +9,15 @@ import type { Link as DbLink } from './db/DatabaseClient';
 import { detectBrowser, detectOS, detectDevice, detectReferrer } from './utils/helpers';
 
 const AppContent: React.FC = () => {
-  const { user, isLoading: isAuthLoading } = useAuth();
   const { toast } = useToast();
   
   // Estado de Navegação / Roteamento
-  const [currentView, setCurrentView] = useState('landing'); // landing, dashboard, admin, stats, password, expired, disabled
+  const [currentView, setCurrentView] = useState('landing'); // landing, stats, password, expired, disabled
   const [routeSlug, setRouteSlug] = useState('');
   const [activeLink, setActiveLink] = useState<DbLink | null>(null);
+
+  // Controle do modal de configurações do banco
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Analisador de Hash para Roteamento Dinâmico
   const parseHash = async () => {
@@ -26,20 +25,6 @@ const AppContent: React.FC = () => {
     
     if (hash === '#/') {
       setCurrentView('landing');
-      setRouteSlug('');
-      setActiveLink(null);
-      return;
-    }
-
-    if (hash.startsWith('#/dashboard')) {
-      setCurrentView('dashboard');
-      setRouteSlug('');
-      setActiveLink(null);
-      return;
-    }
-
-    if (hash.startsWith('#/admin')) {
-      setCurrentView('admin');
       setRouteSlug('');
       setActiveLink(null);
       return;
@@ -196,49 +181,26 @@ const AppContent: React.FC = () => {
     window.location.href = url;
   };
 
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-dark-bg text-white flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
-          <span className="text-sm font-semibold tracking-wide text-neutral-400">Carregando SAMACK...</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-dark-bg text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
       
       {/* Exibir Navbar apenas se não estiver em tela de redirecionamento bloqueado/senha */}
       {currentView !== 'password' && currentView !== 'expired' && currentView !== 'disabled' && (
-        <Navbar currentView={currentView} onNavigate={navigateTo} />
+        <Navbar 
+          onNavigate={navigateTo} 
+          onOpenSettings={() => setIsSettingsOpen(true)} 
+        />
       )}
 
       {/* RENDERIZADOR DE ROTAS */}
       <div className="flex-grow flex flex-col">
-        {currentView === 'landing' && <LandingPage onNavigate={navigateTo} />}
-        
-        {currentView === 'dashboard' && (
-          user ? (
-            <Dashboard onNavigate={navigateTo} />
-          ) : (
-            <div className="flex-grow flex flex-col items-center justify-center p-8 text-center">
-              <h2 className="text-xl font-bold mb-2">Faça Login para Acessar</h2>
-              <p className="text-xs text-neutral-450 mb-4 max-w-xs">
-                Esta página requer autenticação. Faça login utilizando o menu "Simulador Auth" no topo da página.
-              </p>
-              <button
-                onClick={() => navigateTo('landing')}
-                className="px-4 py-2 bg-primary text-white rounded-xl font-bold text-xs cursor-pointer"
-              >
-                Ir para o Início
-              </button>
-            </div>
-          )
+        {currentView === 'landing' && (
+          <LandingPage 
+            onNavigate={navigateTo} 
+            isSettingsOpen={isSettingsOpen} 
+            setIsSettingsOpen={setIsSettingsOpen} 
+          />
         )}
-
-        {currentView === 'admin' && <AdminPanel onNavigate={navigateTo} />}
         
         {currentView === 'stats' && <PublicStats slug={routeSlug} onNavigate={navigateTo} />}
         
@@ -277,9 +239,7 @@ const AppContent: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <ToastProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
+      <AppContent />
     </ToastProvider>
   );
 };
