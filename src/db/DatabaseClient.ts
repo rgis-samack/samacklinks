@@ -639,7 +639,11 @@ class SupabaseDatabaseClient implements IDatabaseClient {
       .eq('id', userId)
       .maybeSingle();
     
-    if (error || !data) return null;
+    if (error) {
+      console.error("SAMACK - Erro ao buscar usuario atual:", error);
+      return null;
+    }
+    if (!data) return null;
     return {
       id: data.id,
       name: data.name,
@@ -653,10 +657,14 @@ class SupabaseDatabaseClient implements IDatabaseClient {
   }
 
   async getUsers(): Promise<User[]> {
-    const { data } = await this.supabase
+    const { data, error } = await this.supabase
       .from('users')
       .select('*')
       .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error("SAMACK - Erro ao buscar usuarios:", error);
+    }
     
     return (data || []).map(d => ({
       id: d.id,
@@ -694,7 +702,11 @@ class SupabaseDatabaseClient implements IDatabaseClient {
       .is('deleted_at', null)
       .maybeSingle();
 
-    if (error || !data) return null;
+    if (error) {
+      console.error("SAMACK - Erro ao buscar link pelo slug:", error);
+      return null;
+    }
+    if (!data) return null;
     return {
       id: data.id,
       userId: data.user_id,
@@ -729,7 +741,10 @@ class SupabaseDatabaseClient implements IDatabaseClient {
       query = query.is('deleted_at', null);
     }
 
-    const { data } = await query;
+    const { data, error } = await query;
+    if (error) {
+      console.error("SAMACK - Erro ao buscar links por usuario:", error);
+    }
     if (!data) return [];
 
     return data.map((d: any) => {
@@ -759,13 +774,16 @@ class SupabaseDatabaseClient implements IDatabaseClient {
   async getLinksBySlugs(slugs: string[]): Promise<Link[]> {
     if (slugs.length === 0) return [];
     const lowercaseSlugs = slugs.map(s => s.toLowerCase());
-    const { data } = await this.supabase
+    const { data, error } = await this.supabase
       .from('links')
       .select('*, clicks(id, clicked_at)')
       .in('slug', lowercaseSlugs)
       .is('deleted_at', null)
       .order('created_at', { ascending: false });
 
+    if (error) {
+      console.error("SAMACK - Erro ao buscar links por slugs:", error);
+    }
     if (!data) return [];
     return data.map((d: any) => {
       const clicksList = d.clicks || [];
@@ -792,11 +810,14 @@ class SupabaseDatabaseClient implements IDatabaseClient {
   }
 
   async getAllLinksAdmin(): Promise<Link[]> {
-    const { data } = await this.supabase
+    const { data, error } = await this.supabase
       .from('links')
       .select('*, clicks(id, clicked_at)')
       .order('created_at', { ascending: false });
 
+    if (error) {
+      console.error("SAMACK - Erro ao buscar todos os links (admin):", error);
+    }
     if (!data) return [];
     return data.map((d: any) => {
       const clicksList = d.clicks || [];
