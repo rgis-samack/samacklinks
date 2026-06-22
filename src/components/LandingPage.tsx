@@ -18,9 +18,6 @@ import {
   Download,
   Upload,
   Trash2,
-  X,
-  Database,
-  Info,
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
