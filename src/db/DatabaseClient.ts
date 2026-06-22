@@ -1196,7 +1196,10 @@ const getSupabaseConfig = () => {
     return { url: envUrl, key: envKey };
   }
   
-  return null;
+  // Fallback padrão do projeto do usuário para que funcione globalmente sem configuração manual
+  const defaultUrl = 'https://nxlexqsgzojrmabzutem.supabase.co';
+  const defaultKey = 'sb_publishable_nhfogHabEyaHptDmB_YJUA_o7it6WVE';
+  return { url: defaultUrl, key: defaultKey };
 };
 
 class DynamicDatabaseClient implements IDatabaseClient {
