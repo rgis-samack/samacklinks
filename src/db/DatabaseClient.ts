@@ -82,6 +82,7 @@ export interface IDatabaseClient {
   // Links
   getLinkBySlug(slug: string): Promise<Link | null>;
   getLinksByUser(userId: string | null, includeDeleted?: boolean): Promise<Link[]>;
+  getLinksBySlugs(slugs: string[]): Promise<Link[]>;
   getAllLinksAdmin(): Promise<Link[]>;
   createLink(linkData: Partial<Link>): Promise<Link>;
   updateLink(linkId: string, updates: Partial<Link>): Promise<Link>;
@@ -374,6 +375,12 @@ class MockDatabaseClient implements IDatabaseClient {
   async getLinksByUser(userId: string | null, includeDeleted = false): Promise<Link[]> {
     const links = this.getStorage<Link[]>('links', []);
     return links.filter(l => l.userId === userId && (includeDeleted ? true : l.deletedAt === null));
+  }
+
+  async getLinksBySlugs(slugs: string[]): Promise<Link[]> {
+    const links = this.getStorage<Link[]>('links', []);
+    const lowercaseSlugs = slugs.map(s => s.toLowerCase());
+    return links.filter(l => lowercaseSlugs.includes(l.slug.toLowerCase()) && l.deletedAt === null);
   }
 
   async getAllLinksAdmin(): Promise<Link[]> {
@@ -725,6 +732,41 @@ class SupabaseDatabaseClient implements IDatabaseClient {
     const { data } = await query;
     if (!data) return [];
 
+    return data.map((d: any) => {
+      const clicksList = d.clicks || [];
+      const clicksCount = clicksList.length;
+      const sorted = [...clicksList].sort((a: any, b: any) => new Date(b.clicked_at).getTime() - new Date(a.clicked_at).getTime());
+      const lastClickedAt = sorted.length > 0 ? sorted[0].clicked_at : null;
+
+      return {
+        id: d.id,
+        userId: d.user_id,
+        originalUrl: d.original_url,
+        slug: d.slug,
+        title: d.title,
+        description: d.description,
+        password: d.password || undefined,
+        expiresAt: d.expires_at,
+        deletedAt: d.deleted_at,
+        status: d.status,
+        createdAt: d.created_at,
+        clicksCount,
+        lastClickedAt
+      };
+    });
+  }
+
+  async getLinksBySlugs(slugs: string[]): Promise<Link[]> {
+    if (slugs.length === 0) return [];
+    const lowercaseSlugs = slugs.map(s => s.toLowerCase());
+    const { data } = await this.supabase
+      .from('links')
+      .select('*, clicks(id, clicked_at)')
+      .in('slug', lowercaseSlugs)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false });
+
+    if (!data) return [];
     return data.map((d: any) => {
       const clicksList = d.clicks || [];
       const clicksCount = clicksList.length;
@@ -1115,10 +1157,67 @@ class SupabaseDatabaseClient implements IDatabaseClient {
 // -------------------------------------------------------------
 // SELETOR DINÂMICO DE CLIENTE (MOCK VS SUPABASE)
 // -------------------------------------------------------------
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const getSupabaseConfig = () => {
+  const customUrl = localStorage.getItem('samack_custom_supabase_url');
+  const customKey = localStorage.getItem('samack_custom_supabase_anon_key');
+  
+  if (customUrl && customKey && customUrl.includes('supabase.co')) {
+    return { url: customUrl, key: customKey };
+  }
+  
+  const envUrl = import.meta.env.VITE_SUPABASE_URL || '';
+  const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+  
+  if (envUrl && envKey && envUrl.includes('supabase.co')) {
+    return { url: envUrl, key: envKey };
+  }
+  
+  return null;
+};
 
-// Ativar o Supabase apenas se houver uma URL configurada e válida
-export const db = (supabaseUrl && supabaseKey && supabaseUrl.includes('supabase.co'))
-  ? new SupabaseDatabaseClient(supabaseUrl, supabaseKey)
-  : new MockDatabaseClient();
+class DynamicDatabaseClient implements IDatabaseClient {
+  private activeClient!: IDatabaseClient;
+
+  constructor() {
+    this.reconnect();
+  }
+
+  reconnect() {
+    const config = getSupabaseConfig();
+    if (config) {
+      try {
+        this.activeClient = new SupabaseDatabaseClient(config.url, config.key);
+        return;
+      } catch (e) {
+        console.error("Falha ao inicializar Supabase client:", e);
+      }
+    }
+    this.activeClient = new MockDatabaseClient();
+  }
+
+  isMock(): boolean {
+    return this.activeClient instanceof MockDatabaseClient;
+  }
+
+  // Delegar todos os métodos
+  getCurrentUser(userId: string) { return this.activeClient.getCurrentUser(userId); }
+  getUsers() { return this.activeClient.getUsers(); }
+  updateUserStatus(userId: string, status: 'active' | 'blocked') { return this.activeClient.updateUserStatus(userId, status); }
+  updateUserPlan(userId: string, plan: 'free' | 'pro' | 'enterprise') { return this.activeClient.updateUserPlan(userId, plan); }
+  getLinkBySlug(slug: string) { return this.activeClient.getLinkBySlug(slug); }
+  getLinksByUser(userId: string | null, includeDeleted?: boolean) { return this.activeClient.getLinksByUser(userId, includeDeleted); }
+  getLinksBySlugs(slugs: string[]) { return this.activeClient.getLinksBySlugs(slugs); }
+  getAllLinksAdmin() { return this.activeClient.getAllLinksAdmin(); }
+  createLink(linkData: Partial<Link>) { return this.activeClient.createLink(linkData); }
+  updateLink(linkId: string, updates: Partial<Link>) { return this.activeClient.updateLink(linkId, updates); }
+  deleteLink(linkId: string) { return this.activeClient.deleteLink(linkId); }
+  restoreLink(linkId: string) { return this.activeClient.restoreLink(linkId); }
+  forceDeleteLink(linkId: string) { return this.activeClient.forceDeleteLink(linkId); }
+  registerClick(clickData: Omit<Click, 'id' | 'clickedAt'>) { return this.activeClient.registerClick(clickData); }
+  getAnalyticsSummary(userId: string | null, isAdmin?: boolean) { return this.activeClient.getAnalyticsSummary(userId, isAdmin); }
+  getAnalyticsDetails(userId: string | null, linkId: string | null, period: string, isAdmin?: boolean) { return this.activeClient.getAnalyticsDetails(userId, linkId, period, isAdmin); }
+  getAuditLogs() { return this.activeClient.getAuditLogs(); }
+  addAuditLog(log: Omit<AuditLog, 'id' | 'createdAt'>) { return this.activeClient.addAuditLog(log); }
+}
+
+export const db = new DynamicDatabaseClient();
