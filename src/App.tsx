@@ -16,8 +16,7 @@ const AppContent: React.FC = () => {
   const [routeSlug, setRouteSlug] = useState('');
   const [activeLink, setActiveLink] = useState<DbLink | null>(null);
 
-  // Controle do modal de configurações do banco
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
 
   // Analisador de Hash para Roteamento Dinâmico
   const parseHash = async () => {
@@ -191,7 +190,6 @@ const AppContent: React.FC = () => {
       {currentView !== 'password' && currentView !== 'expired' && currentView !== 'disabled' && (
         <Navbar 
           onNavigate={navigateTo} 
-          onOpenSettings={() => setIsSettingsOpen(true)} 
         />
       )}
 
@@ -200,8 +198,6 @@ const AppContent: React.FC = () => {
         {currentView === 'landing' && (
           <LandingPage 
             onNavigate={navigateTo} 
-            isSettingsOpen={isSettingsOpen} 
-            setIsSettingsOpen={setIsSettingsOpen} 
           />
         )}
         
