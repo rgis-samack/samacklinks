@@ -76,9 +76,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isSettings
   const [activeQrSlug, setActiveQrSlug] = useState<string | null>(null);
 
   // Estados do banco de dados (Configurações)
-  const [dbMode, setDbMode] = useState<'mock' | 'supabase'>('mock');
-  const [supabaseUrl, setSupabaseUrl] = useState('');
-  const [supabaseKey, setSupabaseKey] = useState('');
+  const [dbMode, setDbMode] = useState<'mock' | 'supabase'>('supabase');
+  const [supabaseUrl, setSupabaseUrl] = useState('https://nxlexqsgzojrmabzutem.supabase.co');
+  const [supabaseKey, setSupabaseKey] = useState('sb_publishable_nhfogHabEyaHptDmB_YJUA_o7it6WVE');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -90,9 +90,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isSettings
       setLocalSlugs(JSON.parse(savedSlugs));
     }
 
-    // Configurações do Supabase
-    const savedUrl = localStorage.getItem('samack_custom_supabase_url') || '';
-    const savedKey = localStorage.getItem('samack_custom_supabase_anon_key') || '';
+    // Configurações do Supabase (com fallback para os valores padrões)
+    const savedUrl = localStorage.getItem('samack_custom_supabase_url') || 'https://nxlexqsgzojrmabzutem.supabase.co';
+    const savedKey = localStorage.getItem('samack_custom_supabase_anon_key') || 'sb_publishable_nhfogHabEyaHptDmB_YJUA_o7it6WVE';
     setSupabaseUrl(savedUrl);
     setSupabaseKey(savedKey);
     setDbMode((db as any).isMock() ? 'mock' : 'supabase');
