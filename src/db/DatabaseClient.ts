@@ -1168,7 +1168,10 @@ const getSupabaseConfig = () => {
   const envUrl = import.meta.env.VITE_SUPABASE_URL || '';
   const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
   
-  if (envUrl && envKey && envUrl.includes('supabase.co')) {
+  // Ignorar credenciais de exemplo/placeholder
+  const isPlaceholder = envUrl.includes('sua-url-do-supabase') || envKey.includes('sua-anon-key-aqui') || envKey.trim() === '';
+  
+  if (envUrl && envKey && envUrl.includes('supabase.co') && !isPlaceholder) {
     return { url: envUrl, key: envKey };
   }
   
