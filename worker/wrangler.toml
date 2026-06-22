@@ -1,0 +1,31 @@
+name = "samack-shortener-backend"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Porta de desenvolvimento local do wrangler
+[dev]
+port = 8787
+
+# Vinculação para banco de dados relacional Cloudflare D1 (SQL)
+[[d1_databases]]
+binding = "DB"
+database_name = "samack_d1"
+database_id = "your-d1-database-uuid-goes-here" # Substituído durante o provisionamento real
+migrations_dir = "migrations"
+
+# Vinculação para armazenamento de Chave-Valor Cloudflare KV (Redirecionamento Rápido)
+[[kv_namespaces]]
+binding = "KV"
+id = "your-kv-namespace-uuid-goes-here" # Substituído durante o provisionamento real
+
+[vars]
+# Variáveis de ambiente globais
+JWT_SECRET = "samack-super-secret-key-change-in-production"
+FRONTEND_URL = "https://seu-usuario.github.io/encutar-links" # URL do GitHub Pages
+
+# Configurações para OAuth (Google & GitHub)
+# O usuário substituirá pelos valores reais no Cloudflare Dashboard ou wrangler secrets
+GOOGLE_CLIENT_ID = "google-client-id-here"
+GOOGLE_CLIENT_SECRET = "google-client-secret-here"
+GITHUB_CLIENT_ID = "github-client-id-here"
+GITHUB_CLIENT_SECRET = "github-client-secret-here"
