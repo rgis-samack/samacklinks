@@ -47,11 +47,9 @@ const TwitterIcon: React.FC = () => (
 
 interface LandingPageProps {
   onNavigate: (view: string, slug?: string) => void;
-  isSettingsOpen: boolean;
-  setIsSettingsOpen: (open: boolean) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isSettingsOpen, setIsSettingsOpen }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
   const { toast } = useToast();
 
   // Estados do formulário de encurtamento
@@ -77,8 +75,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isSettings
 
   // Estados do banco de dados (Configurações)
   const [dbMode, setDbMode] = useState<'mock' | 'supabase'>('supabase');
-  const [supabaseUrl, setSupabaseUrl] = useState('https://nxlexqsgzojrmabzutem.supabase.co');
-  const [supabaseKey, setSupabaseKey] = useState('sb_publishable_nhfogHabEyaHptDmB_YJUA_o7it6WVE');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -90,11 +86,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isSettings
       setLocalSlugs(JSON.parse(savedSlugs));
     }
 
-    // Configurações do Supabase (com fallback para os valores padrões)
-    const savedUrl = localStorage.getItem('samack_custom_supabase_url') || 'https://nxlexqsgzojrmabzutem.supabase.co';
-    const savedKey = localStorage.getItem('samack_custom_supabase_anon_key') || 'sb_publishable_nhfogHabEyaHptDmB_YJUA_o7it6WVE';
-    setSupabaseUrl(savedUrl);
-    setSupabaseKey(savedKey);
     setDbMode((db as any).isMock() ? 'mock' : 'supabase');
   }, []);
 
@@ -266,32 +257,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isSettings
     }
   };
 
-  // 7. Configuração do Supabase (Salvar e Reconectar)
-  const handleSaveDbSettings = async (mode: 'mock' | 'supabase') => {
-    if (mode === 'supabase') {
-      if (!supabaseUrl.trim() || !supabaseKey.trim()) {
-        toast.error('Campos vazios', 'Insira a URL e a Anon Key do seu projeto Supabase.');
-        return;
-      }
-      if (!supabaseUrl.includes('supabase.co')) {
-        toast.error('URL inválida', 'A URL do Supabase deve possuir o domínio supabase.co.');
-        return;
-      }
-      localStorage.setItem('samack_custom_supabase_url', supabaseUrl.trim());
-      localStorage.setItem('samack_custom_supabase_anon_key', supabaseKey.trim());
-    } else {
-      localStorage.removeItem('samack_custom_supabase_url');
-      localStorage.removeItem('samack_custom_supabase_anon_key');
-    }
 
-    setDbMode(mode);
-    
-    // Reconectar o banco dinamicamente
-    (db as any).reconnect();
-    
-    setIsSettingsOpen(false);
-    toast.success('Conectado!', mode === 'supabase' ? 'Conectado com sucesso ao Supabase!' : 'Banco de dados local (LocalStorage) ativo.');
-  };
 
   // 8. Importar / Exportar Backup
   const handleExportBackup = () => {
@@ -810,132 +776,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isSettings
 
       </main>
 
-      {/* MODAL DE CONFIGURAÇÕES DO BANCO DE DADOS (SUPABASE) */}
-      <AnimatePresence>
-        {isSettingsOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsSettingsOpen(false)}
-              className="absolute inset-0 bg-neutral-950/60 backdrop-blur-sm"
-            />
-            
-            {/* Card do Modal */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="relative w-full max-w-lg rounded-3xl border border-neutral-200 dark:border-dark-border bg-white dark:bg-dark-card shadow-2xl p-6 sm:p-8 z-10 text-left glass overflow-hidden"
-            >
-              <button 
-                onClick={() => setIsSettingsOpen(false)}
-                className="absolute top-4 right-4 p-2 rounded-xl text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-850 dark:hover:text-white cursor-pointer transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
 
-              <div className="flex items-center gap-2 mb-4">
-                <Database className="h-6 w-6 text-primary" />
-                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-                  Conexão de Banco de Dados
-                </h3>
-              </div>
-
-              <p className="text-xs text-neutral-450 dark:text-dark-text-muted mb-6 leading-relaxed">
-                Por padrão, o SAMACK salva seus links localmente no navegador (LocalStorage). 
-                Se desejar persistência global na nuvem para compartilhar seus links com outras pessoas, você pode conectar o seu próprio banco de dados do **Supabase**.
-              </p>
-
-              {/* Botões de Seleção de Modo */}
-              <div className="grid grid-cols-2 gap-2 mb-6 p-1 bg-neutral-50 dark:bg-neutral-900 rounded-2xl">
-                <button
-                  type="button"
-                  onClick={() => handleSaveDbSettings('mock')}
-                  className={`py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                    dbMode === 'mock' 
-                      ? 'bg-white dark:bg-dark-card text-neutral-900 dark:text-white shadow-sm' 
-                      : 'text-neutral-450 hover:text-neutral-800'
-                  }`}
-                >
-                  Modo Local (LocalStorage)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDbMode('supabase')}
-                  className={`py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                    dbMode === 'supabase' 
-                      ? 'bg-white dark:bg-dark-card text-neutral-900 dark:text-white shadow-sm' 
-                      : 'text-neutral-450 hover:text-neutral-800'
-                  }`}
-                >
-                  Modo Nuvem (Supabase)
-                </button>
-              </div>
-
-              {dbMode === 'supabase' ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1.5">
-                      Supabase Project URL
-                    </label>
-                    <input
-                      type="text"
-                      value={supabaseUrl}
-                      onChange={(e) => setSupabaseUrl(e.target.value)}
-                      placeholder="https://xxxxxx.supabase.co"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1.5">
-                      Supabase API Anon Key
-                    </label>
-                    <input
-                      type="password"
-                      value={supabaseKey}
-                      onChange={(e) => setSupabaseKey(e.target.value)}
-                      placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                  </div>
-
-                  <div className="p-3.5 bg-primary/5 border border-primary/10 rounded-2xl flex items-start gap-3 mt-4">
-                    <Info className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                    <p className="text-[10px] text-primary/90 leading-relaxed font-semibold">
-                      IMPORTANTE: Antes de conectar, você deve executar as tabelas e políticas do Supabase SQL Editor. 
-                      Copie o arquivo <span className="underline cursor-pointer" onClick={() => window.open('https://github.com/rgis-samack/samacklinks/blob/main/supabase_schema.sql', '_blank')}>supabase_schema.sql</span> e cole no seu console para configurar automaticamente.
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => handleSaveDbSettings('supabase')}
-                    className="w-full mt-4 py-3 rounded-xl bg-primary hover:bg-primary/95 text-white font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all cursor-pointer"
-                  >
-                    Salvar e Conectar Supabase
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4 text-center">
-                  <div className="p-4 bg-neutral-50 dark:bg-neutral-900 rounded-2xl text-xs text-neutral-500 leading-relaxed">
-                    Você está rodando no **Modo Local**. Todos os seus dados de links e cliques ficarão restritos a este navegador, funcionando offline. 
-                    Nenhuma chave do Supabase é necessária.
-                  </div>
-                  <button
-                    onClick={() => handleSaveDbSettings('mock')}
-                    className="w-full py-3 rounded-xl bg-neutral-900 hover:bg-neutral-850 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900 font-extrabold text-xs uppercase tracking-wider transition-all cursor-pointer"
-                  >
-                    Ativar Armazenamento Local
-                  </button>
-                </div>
-              )}
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* RODAPÉ */}
       <footer className="w-full border-t border-neutral-200 dark:border-dark-border py-6 text-center text-xs text-neutral-400 dark:text-dark-text-muted bg-white dark:bg-dark-bg">
