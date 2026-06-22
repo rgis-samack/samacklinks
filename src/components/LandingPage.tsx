@@ -95,7 +95,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isSettings
     const savedKey = localStorage.getItem('samack_custom_supabase_anon_key') || '';
     setSupabaseUrl(savedUrl);
     setSupabaseKey(savedKey);
-    setDbMode((savedUrl && savedKey) ? 'supabase' : 'mock');
+    setDbMode((db as any).isMock() ? 'mock' : 'supabase');
   }, []);
 
   // 2. Sempre que os slugs locais ou o modo do banco mudar, recarregar a lista detalhada
