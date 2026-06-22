@@ -1,0 +1,41 @@
+name: Deploy SAMACK SHORTENER
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  # Job Único: Compilar e Publicar no GitHub Pages
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Código-Fonte
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar Dependências
+        run: npm ci
+
+      - name: Compilar Frontend React
+        run: npm run build
+        env:
+          # Injetar credenciais do Supabase na build estática de produção
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Deploy para GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: gh-pages
+          clean: true
