@@ -12,7 +12,6 @@ import {
   Check, 
   QrCode, 
   ArrowRight,
-  TrendingUp, 
   Lock, 
   Calendar,
   Download,
@@ -42,11 +41,7 @@ const TwitterIcon: React.FC = () => (
   </svg>
 );
 
-interface LandingPageProps {
-  onNavigate: (view: string, slug?: string) => void;
-}
-
-export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
+export const LandingPage: React.FC = () => {
   const { toast } = useToast();
 
   // Estados do formulário de encurtamento
@@ -460,22 +455,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             >
               <div className="bg-orange-glow-sm absolute inset-0 -z-10 pointer-events-none" />
               
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-primary/10 pb-4 mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-                     Seu link inteligente está pronto!
-                  </h3>
-                  <p className="text-xs text-neutral-500 dark:text-dark-text-muted truncate max-w-[320px] sm:max-w-xl mt-1">
-                    Destino: {createdLink.originalUrl}
-                  </p>
-                </div>
-                <button
-                  onClick={() => onNavigate('stats', createdLink.slug)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-dark-card hover:bg-neutral-50 dark:hover:bg-neutral-800 text-xs font-semibold text-neutral-800 dark:text-neutral-200 transition-colors"
-                >
-                  <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                  Ver Estatísticas de Cliques
-                </button>
+              <div className="border-b border-primary/10 pb-4 mb-4">
+                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                   Seu link inteligente está pronto!
+                </h3>
+                <p className="text-xs text-neutral-500 dark:text-dark-text-muted truncate max-w-[320px] sm:max-w-xl mt-1">
+                  Destino: {createdLink.originalUrl}
+                </p>
               </div>
 
               {/* URL Encurtada Principal */}
@@ -483,24 +469,26 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                 <span className="text-primary font-extrabold text-sm sm:text-lg truncate flex-grow">
                   {getShortenedUrl(createdLink.slug)}
                 </span>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => handleCopy(createdLink.slug)}
-                    className="p-2.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-xs font-bold transition-colors cursor-pointer"
                     title="Copiar link"
                   >
-                    {copied ? <Check className="h-4.5 w-4.5 text-emerald-500" /> : <Copy className="h-4.5 w-4.5" />}
+                    {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                    <span>Copiar</span>
                   </button>
                   <button
                     onClick={() => setShowQr(!showQr)}
-                    className={`p-2.5 rounded-xl transition-colors cursor-pointer ${
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       showQr 
-                        ? 'bg-primary text-white' 
-                        : 'bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300'
+                        ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                        : 'bg-primary/10 hover:bg-primary hover:text-white text-primary border border-primary/10'
                     }`}
                     title="Mostrar QR Code"
                   >
-                    <QrCode className="h-4.5 w-4.5" />
+                    <QrCode className="h-4 w-4" />
+                    <span>QR Code</span>
                   </button>
                 </div>
               </div>
