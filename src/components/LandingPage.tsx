@@ -711,25 +711,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-xs">
                           <div className="inline-flex items-center gap-1">
-                            <button
-                              onClick={() => onNavigate('stats', link.slug)}
-                              className="p-2 rounded-xl bg-primary/10 hover:bg-primary hover:text-white text-primary text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
-                              title="Ver Estatísticas"
-                            >
-                              <TrendingUp className="h-4 w-4" />
-                              <span>Analytics</span>
-                            </button>
                             <div className="relative">
                               <button
                                 onClick={() => setActiveQrSlug(activeQrSlug === link.slug ? null : link.slug)}
-                                className={`p-2 rounded-xl border text-xs cursor-pointer transition-colors ${
+                                className={`p-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                                   activeQrSlug === link.slug 
-                                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900' 
-                                    : 'border-neutral-250 dark:border-dark-border text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                                    ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                                    : 'bg-primary/10 hover:bg-primary hover:text-white text-primary border border-primary/10'
                                 }`}
                                 title="QR Code"
                               >
                                 <QrCode className="h-4 w-4" />
+                                <span>QR Code</span>
                               </button>
                               
                               {/* Popup Flutuante do QR Code */}
