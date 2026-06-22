@@ -157,6 +157,9 @@ const AppContent: React.FC = () => {
   };
 
   useEffect(() => {
+    // Log do banco ativo para debug do usuário no console do navegador
+    console.log("SAMACK - Banco de dados ativo:", db.isMock() ? "LOCAL (LocalStorage / Offline)" : "NUVEM (Supabase / Online)");
+    
     // Escutar mudanças no Hash da URL
     window.addEventListener('hashchange', parseHash);
     // Executar análise na carga inicial da página
