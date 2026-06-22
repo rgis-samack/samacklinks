@@ -24,7 +24,7 @@ jobs:
           cache: 'npm'
 
       - name: Instalar Dependências
-        run: npm ci
+        run: npm install
 
       - name: Compilar Frontend React
         run: npm run build
