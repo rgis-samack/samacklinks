@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+  
+  --color-primary: #FF6B00;
+  --color-primary-hover: #E05E00;
+  --color-dark-bg: #0A0A0A;
+  --color-dark-card: #141414;
+  --color-dark-border: #222222;
+  --color-dark-text-muted: #888888;
+  --color-light-bg: #FAFAFA;
+  --color-light-card: #FFFFFF;
+  --color-light-border: #E5E5E5;
+  --color-light-text-muted: #666666;
+}
+
+/* Estilos adicionais e micro-animações */
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    @apply transition-colors duration-300 antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+/* Scrollbar personalizada premium */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #262626;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3f3f3f;
+}
+.light ::-webkit-scrollbar-thumb {
+  background: #e5e5e5;
+}
+.light ::-webkit-scrollbar-thumb:hover {
+  background: #cccccc;
+}
+
+/* Glassmorphism */
+.glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass {
+  background: rgba(20, 20, 20, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.light .glass {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Efeito de brilho em degradê radial do logo e elementos de destaque */
+.bg-orange-glow {
+  background: radial-gradient(800px circle at 50% 200px, rgba(255, 107, 0, 0.08), transparent 80%);
+}
+
+.bg-orange-glow-sm {
+  background: radial-gradient(300px circle at 50% 50%, rgba(255, 107, 0, 0.12), transparent 80%);
+}
+
+/* Animações e transições extras */
+.hover-scale {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.hover-scale:hover {
+  transform: translateY(-2px);
+}
