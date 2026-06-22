@@ -27,10 +27,6 @@ jobs:
 
       - name: Compilar Frontend React
         run: npm run build
-        env:
-          # Injetar credenciais do Supabase na build estática de produção
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Deploy para GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
