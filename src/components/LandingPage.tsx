@@ -104,14 +104,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isSettings
   }, [localSlugs, dbMode]);
 
   const loadMyLinks = async () => {
-    if (localSlugs.length === 0) {
-      setMyLinks([]);
-      return;
-    }
     setIsLoadingLinks(true);
     try {
-      const data = await db.getLinksBySlugs(localSlugs);
-      setMyLinks(data);
+      if (db.isMock()) {
+        // No modo local, carregamos apenas os slugs salvos neste navegador
+        if (localSlugs.length === 0) {
+          setMyLinks([]);
+          setIsLoadingLinks(false);
+          return;
+        }
+        const data = await db.getLinksBySlugs(localSlugs);
+        setMyLinks(data);
+      } else {
+        // No modo Supabase, carregamos todos os links do banco para sincronizar entre todos os navegadores
+        const data = await db.getAllLinksAdmin();
+        setMyLinks(data);
+      }
     } catch (e: any) {
       console.error('Erro ao carregar links salvos:', e);
     } finally {
@@ -631,7 +639,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isSettings
                 Seus Links Encurtados
               </h2>
               <p className="text-xs text-neutral-450 dark:text-dark-text-muted mt-1">
-                Slugs salvos no navegador. Os cliques e dados são atualizados em tempo real.
+                {dbMode === 'supabase'
+                  ? 'Todos os links cadastrados na nuvem. Compartilhados e sincronizados globalmente.'
+                  : 'Slugs salvos localmente neste navegador. Os cliques e dados são atualizados em tempo real.'}
               </p>
             </div>
 
@@ -673,7 +683,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isSettings
               <Link2 className="h-10 w-10 text-neutral-300 dark:text-neutral-700 mb-3" />
               <h4 className="text-sm font-bold text-neutral-700 dark:text-neutral-300">Nenhum link ativo encontrado</h4>
               <p className="text-xs text-neutral-450 dark:text-dark-text-muted mt-1 max-w-sm leading-relaxed">
-                Você ainda não encurtou nenhum link neste navegador ou seu backup está vazio. Encurte um link acima para iniciar!
+                {dbMode === 'supabase'
+                  ? 'Ainda não há nenhum link cadastrado no banco de dados na nuvem. Crie um link acima para iniciar!'
+                  : 'Você ainda não encurtou nenhum link neste navegador ou seu backup está vazio. Encurte um link acima para iniciar!'}
               </p>
             </div>
           ) : (
