@@ -820,13 +820,8 @@ export const LandingPage: React.FC = () => {
 
       {/* RODAPÉ */}
       <footer className="w-full border-t border-neutral-200 dark:border-dark-border py-6 text-center text-xs text-neutral-400 dark:text-dark-text-muted bg-white dark:bg-dark-bg">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            © {new Date().getFullYear()} SAMACK. Todos os direitos reservados.
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-primary font-bold">Abre.ai & Vercel Inspired</span>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          © {new Date().getFullYear()} SAMACK. Todos os direitos reservados.
         </div>
       </footer>
 
