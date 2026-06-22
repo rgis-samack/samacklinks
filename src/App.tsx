@@ -196,9 +196,7 @@ const AppContent: React.FC = () => {
       {/* RENDERIZADOR DE ROTAS */}
       <div className="flex-grow flex flex-col">
         {currentView === 'landing' && (
-          <LandingPage 
-            onNavigate={navigateTo} 
-          />
+          <LandingPage />
         )}
         
         {currentView === 'stats' && <PublicStats slug={routeSlug} onNavigate={navigateTo} />}
