@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from './Toast';
 import { db } from '../db/DatabaseClient';
 import type { Link as DbLink } from '../db/DatabaseClient';
@@ -15,7 +15,6 @@ import {
   Lock, 
   Calendar,
   Download,
-  Upload,
   Trash2,
   ChevronDown,
   ChevronUp
@@ -68,9 +67,7 @@ export const LandingPage: React.FC = () => {
   // Estados do banco de dados (Configurações)
   const [dbMode, setDbMode] = useState<'mock' | 'supabase'>('supabase');
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // 1. Carregar slugs locais e configurações do Supabase na montagem do componente
+  // 1. Carregar slugs locais ao iniciar configurações do Supabase na montagem do componente
   useEffect(() => {
     // Slugs criados neste navegador
     const savedSlugs = localStorage.getItem('samack_my_created_slugs');
@@ -233,8 +230,6 @@ export const LandingPage: React.FC = () => {
 
   // 6. Excluir Link
   const handleDeleteLink = async (linkId: string, slugToDelete: string) => {
-    if (!window.confirm(`Tem certeza que deseja excluir o link "/${slugToDelete}"?`)) return;
-
     try {
       await db.deleteLink(linkId);
       
@@ -251,48 +246,7 @@ export const LandingPage: React.FC = () => {
 
 
 
-  // 8. Importar / Exportar Backup
-  const handleExportBackup = () => {
-    if (myLinks.length === 0) {
-      toast.error('Sem dados', 'Você ainda não possui nenhum link para exportar.');
-      return;
-    }
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(localSlugs));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href",     dataStr);
-    downloadAnchor.setAttribute("download", `samack_backup_links_${new Date().toISOString().slice(0,10)}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-    toast.success('Backup exportado!', 'Seu arquivo de backup JSON foi gerado.');
-  };
 
-  const handleImportBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const imported = JSON.parse(event.target?.result as string);
-        if (Array.isArray(imported)) {
-          // Filtrar itens válidos e mesclar
-          const validSlugs = imported.filter(x => typeof x === 'string');
-          const merged = Array.from(new Set([...validSlugs, ...localSlugs]));
-          
-          setLocalSlugs(merged);
-          localStorage.setItem('samack_my_created_slugs', JSON.stringify(merged));
-          toast.success('Backup importado!', `Restaurados ${validSlugs.length} slugs no navegador.`);
-        } else {
-          toast.error('Formato inválido', 'O arquivo JSON deve conter um array de slugs.');
-        }
-      } catch (err) {
-        toast.error('Erro de leitura', 'Não foi possível ler o arquivo de backup.');
-      }
-    };
-    reader.readAsText(file);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
 
   return (
     <div className="flex-grow flex flex-col justify-between relative bg-orange-glow">
@@ -596,32 +550,7 @@ export const LandingPage: React.FC = () => {
               </p>
             </div>
 
-            {/* Ações de Backup */}
-            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImportBackup}
-                accept=".json"
-                className="hidden"
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="flex-grow sm:flex-grow-0 justify-center flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-neutral-250 dark:border-dark-border text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
-                title="Importar backup"
-              >
-                <Upload className="h-3.5 w-3.5 text-primary" />
-                Importar JSON
-              </button>
-              <button
-                onClick={handleExportBackup}
-                className="flex-grow sm:flex-grow-0 justify-center flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-neutral-250 dark:border-dark-border text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
-                title="Exportar backup"
-              >
-                <Download className="h-3.5 w-3.5 text-primary" />
-                Exportar JSON
-              </button>
-            </div>
+
           </div>
 
           {isLoadingLinks ? (
@@ -636,7 +565,7 @@ export const LandingPage: React.FC = () => {
               <p className="text-xs text-neutral-450 dark:text-dark-text-muted mt-1 max-w-sm leading-relaxed">
                 {dbMode === 'supabase'
                   ? 'Ainda não há nenhum link cadastrado no banco de dados na nuvem. Crie um link acima para iniciar!'
-                  : 'Você ainda não encurtou nenhum link neste navegador ou seu backup está vazio. Encurte um link acima para iniciar!'}
+                  : 'Você ainda não encurtou nenhum link neste navegador. Encurte um link acima para iniciar!'}
               </p>
             </div>
           ) : (
